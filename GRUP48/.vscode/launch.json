@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/emirduman/Desktop/FreeRTOS_PC_Scheduler/src",
+      "program": "/Users/emirduman/Desktop/FreeRTOS_PC_Scheduler/src/build/Debug/outDebug"
+    }
+  ]
+}
