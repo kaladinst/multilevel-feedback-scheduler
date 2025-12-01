@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-
 #include "scheduler.h"
 
 /*Global değişkenler*/
@@ -21,16 +21,35 @@ int G_CurrentTime = 0;
 
 /* Random renk oluşturma fonksiyonu*/
 const char* getRandomColor() {
-    int r = rand() % 6;
-    switch (r) {
-        case 0: return COLOR_RED;
-        case 1: return COLOR_GREEN;
-        case 2: return COLOR_YELLOW;
-        case 3: return COLOR_BLUE;
-        case 4: return COLOR_MAGENTA;
-        case 5: return COLOR_CYAN;
-        default: return COLOR_WHITE;
-    }
+    static const char* palette[] = {
+        "\x1b[38;5;196m",
+        "\x1b[38;5;208m",
+        "\x1b[38;5;226m",
+        "\x1b[38;5;46m",
+        "\x1b[38;5;51m",
+        "\x1b[38;5;21m",
+        "\x1b[38;5;201m",
+        "\x1b[38;5;129m",
+        "\x1b[38;5;200m",
+        "\x1b[38;5;154m",
+        "\x1b[38;5;214m",
+        "\x1b[38;5;39m",
+        "\x1b[38;5;93m",
+        "\x1b[38;5;160m",
+        "\x1b[38;5;220m",
+        "\x1b[38;5;14m",
+        "\x1b[38;5;190m",
+        "\x1b[38;5;27m",
+        "\x1b[38;5;127m",
+        "\x1b[38;5;166m",
+        "\x1b[38;5;82m",
+        "\x1b[38;5;205m",
+        "\x1b[38;5;229m",
+        "\x1b[38;5;244m",
+        "\x1b[38;5;105m"
+    };
+    int r = rand() % 25;
+    return palette[r];
 }
 
 void print_task_log(Task_t *task, const char *status) {
@@ -48,42 +67,70 @@ void print_task_log(Task_t *task, const char *status) {
 
 static void prvSchedulerTask(void *pvParameters) {
     (void) pvParameters;
-    Task_t* nextTask;
     
     for (;;) {
         for (int i = 0; i < G_TaskCount; i++) {
             if (G_TaskList[i].arrival == G_CurrentTime) {
                 print_task_log(&G_TaskList[i], "başladı");
-
+                Task_t* tempTaskPointer = &G_TaskList[i];
                 if(G_TaskList[i].priority == 0) {
-                    xQueueSend(OncelikZero, &G_TaskList[i], 0);
+                    xQueueSend(OncelikZero, &tempTaskPointer, 0);
                 } else if(G_TaskList[i].priority == 1) {
-                    xQueueSend(OncelikZero, &G_TaskList[i], 0);
+                    xQueueSend(OncelikOne, &tempTaskPointer, 0);
                 }else if(G_TaskList[i].priority == 2) {
-                    xQueueSend(OncelikTwo, &G_TaskList[i], 0);
+                    xQueueSend(OncelikTwo, &tempTaskPointer, 0);
                 }else if(G_TaskList[i].priority == 3) {
-                    xQueueSend(OncelikThree, &G_TaskList[i], 0);
+                    xQueueSend(OncelikThree, &tempTaskPointer, 0);
                 }
                 
             }
         }
-
-        if(CurrentTask == NULL) {
-            if(xQueueReceive(OncelikZero, &nextTask,0) == pdTRUE) {
-                CurrentTask = nextTask;
-            }
+        Task_t* nextTask = NULL;
+        Task_t* temp = NULL;
+        if(CurrentTask != NULL &&  CurrentTask->priority == 0 && CurrentTask->remaining > 0) {
+            nextTask = CurrentTask;
+        } else {
+            if(xQueueReceive(OncelikZero, &temp, 0) == pdTRUE) {
+                nextTask = temp;
+            } else if(xQueueReceive(OncelikOne , &temp,0) == pdTRUE) {
+                nextTask = temp;
+            } else if(xQueueReceive(OncelikTwo , &temp,0) == pdTRUE) {
+                nextTask = temp;
+            } else if(xQueueReceive(OncelikThree , &temp,0) == pdTRUE) {
+                nextTask = temp;
+            } 
         }
 
-        if(CurrentTask != NULL) {
-            print_task_log(CurrentTask , "yürütülüyor");
-            CurrentTask-> remaining--;
 
-            if(CurrentTask->remaining==0) {
-                print_task_log(CurrentTask,"sonlandı");
+        if(nextTask != NULL) {
+            CurrentTask = nextTask;
+
+            print_task_log(CurrentTask, "yürütülüyor");
+            CurrentTask->remaining--;
+            if(CurrentTask->remaining == 0) {
+                print_task_log(CurrentTask, "sonlandi");
                 CurrentTask = NULL;
+            } else {
+                if(CurrentTask->priority == 0) {   
+                } else {
+                    if(CurrentTask->priority == 1) {
+                        CurrentTask->priority = 2;
+                        xQueueSend(OncelikTwo,&CurrentTask,0);
+                    } else if(CurrentTask->priority == 2) {
+                        CurrentTask->priority = 3;
+                        xQueueSend(OncelikThree,&CurrentTask,0);
+                    } else {
+                        xQueueSend(OncelikThree,&CurrentTask,0);
+                    }
+
+                    CurrentTask = NULL;
+                }
             }
+        }
+         else {
+            CurrentTask = NULL;
          }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+
         G_CurrentTime++;
     }
 }
@@ -93,7 +140,7 @@ void vSchedulerInit(void) {
     int arrival, priority, burst;
     int i = 0;
     file = fopen("giris.txt", "r");
-
+    srand(time(NULL));
     while(fscanf(file, "%d, %d, %d", &arrival, &priority, &burst) == 3) {
         sprintf(G_TaskList[i].id, "%04d", i);
 
@@ -106,10 +153,8 @@ void vSchedulerInit(void) {
         i++;
         G_TaskCount++;
     }
-
     fclose(file);
 }
-
 
 void vSchedulerStart(void) {
     OncelikZero = xQueueCreate(10, sizeof(Task_t*));
