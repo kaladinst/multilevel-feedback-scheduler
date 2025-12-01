@@ -15,6 +15,7 @@ QueueHandle_t OncelikOne;
 QueueHandle_t OncelikTwo;
 QueueHandle_t OncelikThree;
 Task_t G_TaskList[MAX_TASKS];
+Task_t* CurrentTask = NULL;
 int G_TaskCount = 0;
 int G_CurrentTime = 0;
 
@@ -47,14 +48,41 @@ void print_task_log(Task_t *task, const char *status) {
 
 static void prvSchedulerTask(void *pvParameters) {
     (void) pvParameters;
+    Task_t* nextTask;
     
     for (;;) {
         for (int i = 0; i < G_TaskCount; i++) {
             if (G_TaskList[i].arrival == G_CurrentTime) {
                 print_task_log(&G_TaskList[i], "başladı");
+
+                if(G_TaskList[i].priority == 0) {
+                    xQueueSend(OncelikZero, &G_TaskList[i], 0);
+                } else if(G_TaskList[i].priority == 1) {
+                    xQueueSend(OncelikZero, &G_TaskList[i], 0);
+                }else if(G_TaskList[i].priority == 2) {
+                    xQueueSend(OncelikTwo, &G_TaskList[i], 0);
+                }else if(G_TaskList[i].priority == 3) {
+                    xQueueSend(OncelikThree, &G_TaskList[i], 0);
+                }
                 
             }
         }
+
+        if(CurrentTask == NULL) {
+            if(xQueueReceive(OncelikZero, &nextTask,0) == pdTRUE) {
+                CurrentTask = nextTask;
+            }
+        }
+
+        if(CurrentTask != NULL) {
+            print_task_log(CurrentTask , "yürütülüyor");
+            CurrentTask-> remaining--;
+
+            if(CurrentTask->remaining==0) {
+                print_task_log(CurrentTask,"sonlandı");
+                CurrentTask = NULL;
+            }
+         }
         vTaskDelay(pdMS_TO_TICKS(1000));
         G_CurrentTime++;
     }
@@ -89,7 +117,6 @@ void vSchedulerStart(void) {
     OncelikTwo = xQueueCreate(10, sizeof(Task_t*));
     OncelikThree = xQueueCreate(10, sizeof(Task_t*));
 
-    xTaskCreate(prvSchedulerTask, "Manager", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
-
+    xTaskCreate(prvSchedulerTask, "TaskManager", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
     vTaskStartScheduler();
 }
