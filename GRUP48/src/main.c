@@ -6,10 +6,6 @@
 #include "scheduler.h" 
 
 int main(void) {
-    printf("----------------------\n");
-    printf("MAC OS BUILD TEST\n");
-    printf("----------------------\n");
-
     vSchedulerInit();
     vSchedulerStart();
     return 0;

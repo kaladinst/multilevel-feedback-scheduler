@@ -22,36 +22,20 @@ int G_CurrentTime = 0;
 /* Random renk oluşturma fonksiyonu*/
 const char* getRandomColor() {
     static const char* palette[] = {
-        "\x1b[38;5;196m",
-        "\x1b[38;5;208m",
-        "\x1b[38;5;226m",
-        "\x1b[38;5;46m",
-        "\x1b[38;5;51m",
-        "\x1b[38;5;21m",
-        "\x1b[38;5;201m",
-        "\x1b[38;5;129m",
-        "\x1b[38;5;200m",
-        "\x1b[38;5;154m",
-        "\x1b[38;5;214m",
-        "\x1b[38;5;39m",
-        "\x1b[38;5;93m",
-        "\x1b[38;5;160m",
-        "\x1b[38;5;220m",
-        "\x1b[38;5;14m",
-        "\x1b[38;5;190m",
-        "\x1b[38;5;27m",
-        "\x1b[38;5;127m",
-        "\x1b[38;5;166m",
-        "\x1b[38;5;82m",
-        "\x1b[38;5;205m",
-        "\x1b[38;5;229m",
-        "\x1b[38;5;244m",
-        "\x1b[38;5;105m"
+        "\x1b[38;5;196m", "\x1b[38;5;208m", "\x1b[38;5;226m",
+        "\x1b[38;5;46m", "\x1b[38;5;51m", "\x1b[38;5;21m",
+        "\x1b[38;5;201m", "\x1b[38;5;129m", "\x1b[38;5;200m",
+        "\x1b[38;5;154m", "\x1b[38;5;214m", "\x1b[38;5;39m",
+        "\x1b[38;5;93m", "\x1b[38;5;160m", "\x1b[38;5;220m",
+        "\x1b[38;5;14m", "\x1b[38;5;190m", "\x1b[38;5;27m",
+        "\x1b[38;5;127m", "\x1b[38;5;166m", "\x1b[38;5;82m",
+        "\x1b[38;5;205m", "\x1b[38;5;229m""\x1b[38;5;244m","\x1b[38;5;105m"
     };
     int r = rand() % 25;
     return palette[r];
 }
 
+/* Ekrana yazma fonksiyonu*/
 void print_task_log(Task_t *task, const char *status) {
     printf("%s%.4f sn \t%s %s \t(id:%s \töncelik:%d \tkalan süre:%d sn)%s\n",
            task->color,                // 1. Renk
@@ -65,6 +49,7 @@ void print_task_log(Task_t *task, const char *status) {
     );
 }
 
+/*Scheduler algoritması*/
 static void prvSchedulerTask(void *pvParameters) {
     (void) pvParameters;
     
@@ -101,10 +86,8 @@ static void prvSchedulerTask(void *pvParameters) {
             } 
         }
 
-
         if(nextTask != NULL) {
             CurrentTask = nextTask;
-
             print_task_log(CurrentTask, "yürütülüyor");
             CurrentTask->remaining--;
             if(CurrentTask->remaining == 0) {
@@ -135,6 +118,7 @@ static void prvSchedulerTask(void *pvParameters) {
     }
 }
 
+/*Dosya okuma ve listeye atama */
 void vSchedulerInit(void) {
     FILE *file;
     int arrival, priority, burst;
@@ -156,12 +140,13 @@ void vSchedulerInit(void) {
     fclose(file);
 }
 
+/*Kuyruk oluşturması ve Task oluşturması*/
 void vSchedulerStart(void) {
     OncelikZero = xQueueCreate(10, sizeof(Task_t*));
     OncelikOne = xQueueCreate(10, sizeof(Task_t*));
     OncelikTwo = xQueueCreate(10, sizeof(Task_t*));
     OncelikThree = xQueueCreate(10, sizeof(Task_t*));
 
-    xTaskCreate(prvSchedulerTask, "TaskManager", configMINIMAL_STACK_SIZE, NULL, configMAX_PRIORITIES-1, NULL);
+    xTaskCreate(prvSchedulerTask, "TaskManager", configMINIMAL_STACK_SIZE, NULL, 4, NULL);
     vTaskStartScheduler();
 }
