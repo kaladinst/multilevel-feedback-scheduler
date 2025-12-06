@@ -15,9 +15,10 @@ typedef struct {
     const char* color;
 
     TaskHandle_t handle;
-} Task_t;
+}Task;
 
-void vSchedulerInit(void);
-void vSchedulerStart(void);
+void SchedulerInitializer(const char *filename);
+void SchedulerStarter(void);
+static void schedulerTasking(void *pvParameters);
 
 #endif
