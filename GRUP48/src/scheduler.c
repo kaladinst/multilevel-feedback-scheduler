@@ -7,9 +7,9 @@
 #include "task.h"
 #include "queue.h"
 #include "scheduler.h"
+#include "tasks.h"
 
 /* Global Değişkenler */
-#define MAX_TASKS 25
 QueueHandle_t OncelikZero;
 QueueHandle_t OncelikOne;
 QueueHandle_t OncelikTwo;
@@ -19,22 +19,6 @@ Task* CurrentTask = NULL;
 int G_TaskCount = 0;
 int G_CurrentTime = 0;
 int G_ActiveTasks = 0;
-
-/* Renk Seçici */
-const char* getRandomColor() {
-    static const char* palette[] = {
-        "\x1b[38;5;196m", "\x1b[38;5;208m", "\x1b[38;5;226m",
-        "\x1b[38;5;46m", "\x1b[38;5;51m", "\x1b[38;5;21m",
-        "\x1b[38;5;201m", "\x1b[38;5;129m", "\x1b[38;5;200m",
-        "\x1b[38;5;154m", "\x1b[38;5;214m", "\x1b[38;5;39m",
-        "\x1b[38;5;93m", "\x1b[38;5;160m", "\x1b[38;5;220m",
-        "\x1b[38;5;14m", "\x1b[38;5;190m", "\x1b[38;5;27m",
-        "\x1b[38;5;127m", "\x1b[38;5;166m", "\x1b[38;5;82m",
-        "\x1b[38;5;205m", "\x1b[38;5;229m", "\x1b[38;5;244m", "\x1b[38;5;105m"
-    };
-    int r = rand() % 25;
-    return palette[r];
-}
 
 /*Kuyrukların oluşturulması*/
 void SchedulerStarter(void) {
@@ -47,49 +31,6 @@ void SchedulerStarter(void) {
     vTaskStartScheduler();
 }
 
-/*Dosya okuması ve değişkenlerin atanması*/
-void SchedulerInitializer(const char *filename) {
-    FILE *file;
-    int arrival, priority, burst;
-    int i = 0;
-    
-    file = fopen(filename, "r");
-    if (file == NULL) {
-        printf("Hata: giris.txt bulunamadi\n");
-        exit(1);
-    }
-    srand(time(NULL));
-    while(fscanf(file, "%d, %d, %d", &arrival, &priority, &burst) == 3 && i < MAX_TASKS) {
-        sprintf(G_TaskList[i].id, "%04d", i);
-        G_TaskList[i].arrival   = arrival;
-        G_TaskList[i].priority  = priority;
-        G_TaskList[i].burstTime = burst;
-        G_TaskList[i].remaining = burst;
-        G_TaskList[i].color     = getRandomColor();
-        G_TaskList[i].handle    = NULL;
-        i++;
-        G_TaskCount++;
-    }
-
-    G_ActiveTasks = G_TaskCount;
-    fclose(file);
-}
-
-/* Log Yazdırma */
-void print_task_log(Task *task, const char *status) {
-    if (task == NULL) return;
-    printf("%s%.4f sn \t%s %s \t(id:%s \töncelik:%d \tkalan süre:%d sn)%s\n",
-           task->color,                
-           (double)G_CurrentTime,      
-           task->id,                   
-           status,                     
-           task->id,                   
-           task->priority,             
-           task->remaining,            
-           COLOR_RESET                 
-    );
-}
-
 /* Scheduler Görevi */
 static void schedulerTasking(void *pvParameters) {
     (void) pvParameters;
@@ -100,7 +41,7 @@ static void schedulerTasking(void *pvParameters) {
             Task* task = &G_TaskList[i];
             
             if (task->remaining > 0 && task->arrival <= G_CurrentTime) {
-                
+
                 int timePassed = G_CurrentTime - task->arrival;
                 
                 if (timePassed >= 21) { 
@@ -146,32 +87,41 @@ static void schedulerTasking(void *pvParameters) {
                 print_task_log(CurrentTask, "askıda");
                 
                 Task* taskToMove = CurrentTask;
+                // Eğer birinci öncelikte ise önceliği 2 yapılır ve xQueueSend fonksiyonu ile ikinci kuyruğa gönderilir
                 if(CurrentTask->priority == 1) {
                     CurrentTask->priority = 2;
                     xQueueSend(OncelikTwo, &taskToMove, 0);
-                } else if(CurrentTask->priority == 2) {
+                }
+                // Eğer ikinci öncelikte ise önceliği 3 yapılır ve xQueueSend fonksiyonu ile üçüncü kuyruğa gönderilir 
+                else if(CurrentTask->priority == 2) {
                     CurrentTask->priority = 3;
                     xQueueSend(OncelikThree, &taskToMove, 0);
-                } else {
+                } 
+                // Eğer üçüncü öncelikte ise önceliği değişmez. kendi kuyruğunun sonuna gönderilir.
+                else {
                     xQueueSend(OncelikThree, &taskToMove, 0);
                 }
-                
-                CurrentTask = NULL; 
+                //task 1sn çalıştıktan sonra cpu boşaltılır.
+                CurrentTask = NULL;
             }
         }
 
         /* Sıradaki task seçimi*/
         if (CurrentTask == NULL) {
              Task* temp = NULL;
+            // 0.öncelik kuyruğu kontrol edilir. task varsa alınır.
              while(CurrentTask== NULL && xQueueReceive(OncelikZero, &temp, 0) == pdTRUE) {
                 if(temp->remaining > 0) {CurrentTask = temp;}
              }
+             // 1.öncelik kuyruğu kontrol edilir. task varsa alınır.
              while(CurrentTask== NULL && xQueueReceive(OncelikOne, &temp, 0) == pdTRUE) {
                 if(temp->remaining > 0) {CurrentTask = temp;}
              }
+             // 2.öncelik kuyruğu kontrol edilir. task varsa alınır.
              while(CurrentTask== NULL && xQueueReceive(OncelikTwo, &temp, 0) == pdTRUE) {
                 if(temp->remaining > 0) {CurrentTask = temp;}
              }
+             // 3.öncelik kuyruğu kontrol edilir. task varsa alınır.
              while(CurrentTask== NULL && xQueueReceive(OncelikThree, &temp, 0) == pdTRUE) {
                 if(temp->remaining > 0) {CurrentTask = temp;}
              }
@@ -189,9 +139,11 @@ static void schedulerTasking(void *pvParameters) {
             print_task_log(CurrentTask, "yürütülüyor");
             CurrentTask->remaining--;
         } 
+
+        /*Zaman artımı ve okunabilirlik için gecikme ekleme*/
         G_CurrentTime++;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
-
+    // çıkış
     exit(0);
 }
