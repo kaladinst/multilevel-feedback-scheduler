@@ -14,7 +14,7 @@ QueueHandle_t OncelikZero;
 QueueHandle_t OncelikOne;
 QueueHandle_t OncelikTwo;
 QueueHandle_t OncelikThree;
-Task G_TaskList[MAX_TASKS];
+Task TaskList[MAX_TASKS];
 Task* CurrentTask = NULL;
 int G_TaskCount = 0;
 int G_CurrentTime = 0;
@@ -38,11 +38,11 @@ static void schedulerTasking(void *pvParameters) {
     while(G_ActiveTasks > 0) {
         /* Zaman aşımları kontrolü*/
         for (int i = 0; i < G_TaskCount; i++) {
-            Task* task = &G_TaskList[i];
+            Task* task = &TaskList[i];
             
             if (task->remaining > 0 && task->arrival <= G_CurrentTime) {
 
-                int timePassed = G_CurrentTime - task->arrival;
+                int timePassed = G_CurrentTime - task->lastWorkedTime;
                 
                 if (timePassed >= 21) { 
                     print_task_log(task, "zaman aşımı");               
@@ -59,16 +59,20 @@ static void schedulerTasking(void *pvParameters) {
         
         /* Taskları kuyruklara yerleştirme */
         for (int i = 0; i < G_TaskCount; i++) {
-            if (G_TaskList[i].arrival == G_CurrentTime) {
-                Task* tempTaskPointer = &G_TaskList[i];
-                if(G_TaskList[i].remaining > 0) {
-                if(G_TaskList[i].priority == 0) {
+            if (TaskList[i].arrival == G_CurrentTime) {
+                Task* tempTaskPointer = &TaskList[i];
+                if(TaskList[i].remaining > 0) {
+                    /* 0.önceliğe gönderme*/
+                if(TaskList[i].priority == 0) {
                     xQueueSend(OncelikZero, &tempTaskPointer, 0);
-                } else if(G_TaskList[i].priority == 1) {
+                } else if(TaskList[i].priority == 1) {
+                    /* 1.önceliğe gönderme*/
                     xQueueSend(OncelikOne, &tempTaskPointer, 0);
-                } else if(G_TaskList[i].priority == 2) {
+                } else if(TaskList[i].priority == 2) {
+                    /* 2.önceliğe gönderme*/
                     xQueueSend(OncelikTwo, &tempTaskPointer, 0);
-                } else if(G_TaskList[i].priority == 3) {
+                } else if(TaskList[i].priority == 3) {
+                    /* 3.önceliğe gönderme*/
                     xQueueSend(OncelikThree, &tempTaskPointer, 0);
                 }
                 } 
@@ -137,6 +141,7 @@ static void schedulerTasking(void *pvParameters) {
         if(CurrentTask != NULL) {
             /*task yürütülmesi*/
             print_task_log(CurrentTask, "yürütülüyor");
+            CurrentTask->lastWorkedTime = G_CurrentTime;
             CurrentTask->remaining--;
         } 
 

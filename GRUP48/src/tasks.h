@@ -9,7 +9,8 @@ typedef struct {
     int arrival;
     int priority;
     int burstTime;
-    int remaining; 
+    int remaining;
+    int lastWorkedTime;
     const char* color;
     TaskHandle_t handle;
 } Task;
