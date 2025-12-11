@@ -9,7 +9,7 @@
 #include "scheduler.h"
 #include "tasks.h"
 
-extern Task G_TaskList[MAX_TASKS];
+extern Task TaskList[MAX_TASKS];
 extern int G_TaskCount;
 extern int G_CurrentTime;
 extern int G_ActiveTasks;
@@ -43,13 +43,14 @@ void SchedulerInitializer(const char *filename) {
     }
     srand(time(NULL));
     while(fscanf(file, "%d, %d, %d", &arrival, &priority, &burst) == 3 && i < MAX_TASKS) {
-        sprintf(G_TaskList[i].id, "%04d", i);
-        G_TaskList[i].arrival   = arrival;
-        G_TaskList[i].priority  = priority;
-        G_TaskList[i].burstTime = burst;
-        G_TaskList[i].remaining = burst;
-        G_TaskList[i].color     = getRandomColor();
-        G_TaskList[i].handle    = NULL;
+        sprintf(TaskList[i].id, "%04d", i);
+        TaskList[i].arrival   = arrival;
+        TaskList[i].priority  = priority;
+        TaskList[i].burstTime = burst;
+        TaskList[i].remaining = burst;
+        TaskList[i].color     = getRandomColor();
+        TaskList[i].handle    = NULL;
+        TaskList[i].lastWorkedTime = arrival;
         i++;
         G_TaskCount++;
     }
