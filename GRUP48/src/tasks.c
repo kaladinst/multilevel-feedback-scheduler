@@ -10,8 +10,8 @@
 #include "tasks.h"
 
 extern Task TaskList[MAX_TASKS];
-extern int G_TaskCount;
-extern int G_CurrentTime;
+extern int TaskCount;
+extern int CurrentTime;
 extern int G_ActiveTasks;
 
 /* Renk Seçici */
@@ -51,11 +51,12 @@ void SchedulerInitializer(const char *filename) {
         TaskList[i].color     = getRandomColor();
         TaskList[i].handle    = NULL;
         TaskList[i].lastWorkedTime = arrival;
+        TaskList[i].startTime = NULL;
         i++;
-        G_TaskCount++;
+        TaskCount++;
     }
 
-    G_ActiveTasks = G_TaskCount;
+    G_ActiveTasks = TaskCount;
     fclose(file);
 }
 
@@ -64,7 +65,7 @@ void print_task_log(Task *task, const char *status) {
     if (task == NULL) return;
     printf("%s%.4f sn \t%s %s \t(id:%s \töncelik:%d \tkalan süre:%d sn)%s\n",
            task->color,                
-           (double)G_CurrentTime,      
+           (double)CurrentTime,      
            task->id,                   
            status,                     
            task->id,                   

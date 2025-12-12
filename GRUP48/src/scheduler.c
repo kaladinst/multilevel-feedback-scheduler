@@ -16,8 +16,8 @@ QueueHandle_t OncelikTwo;
 QueueHandle_t OncelikThree;
 Task TaskList[MAX_TASKS];
 Task* CurrentTask = NULL;
-int G_TaskCount = 0;
-int G_CurrentTime = 0;
+int TaskCount = 0;
+int CurrentTime = 0;
 int G_ActiveTasks = 0;
 
 /*Kuyrukların oluşturulması*/
@@ -37,12 +37,12 @@ static void schedulerTasking(void *pvParameters) {
     
     while(G_ActiveTasks > 0) {
         /* Zaman aşımları kontrolü*/
-        for (int i = 0; i < G_TaskCount; i++) {
+        for (int i = 0; i < TaskCount; i++) {
             Task* task = &TaskList[i];
             
-            if (task->remaining > 0 && task->arrival <= G_CurrentTime) {
+            if (task->remaining > 0 && task->arrival <= CurrentTime) {
 
-                int timePassed = G_CurrentTime - task->lastWorkedTime;
+                int timePassed = CurrentTime - task->lastWorkedTime;
                 
                 if (timePassed >= 21) { 
                     print_task_log(task, "zaman aşımı");               
@@ -58,8 +58,8 @@ static void schedulerTasking(void *pvParameters) {
         }
         
         /* Taskları kuyruklara yerleştirme */
-        for (int i = 0; i < G_TaskCount; i++) {
-            if (TaskList[i].arrival == G_CurrentTime) {
+        for (int i = 0; i < TaskCount; i++) {
+            if (TaskList[i].arrival == CurrentTime) {
                 Task* tempTaskPointer = &TaskList[i];
                 if(TaskList[i].remaining > 0) {
                     /* 0.önceliğe gönderme*/
@@ -134,19 +134,22 @@ static void schedulerTasking(void *pvParameters) {
              if (CurrentTask != NULL) {
                  if (CurrentTask->burstTime == CurrentTask->remaining) {
                      print_task_log(CurrentTask, "başladı");
+                     CurrentTask->startTime = CurrentTime;
                  }
              }
         }
 
         if(CurrentTask != NULL) {
-            /*task yürütülmesi*/
-            print_task_log(CurrentTask, "yürütülüyor");
-            CurrentTask->lastWorkedTime = G_CurrentTime;
+            
+            if (CurrentTask->startTime != CurrentTime) {
+                print_task_log(CurrentTask, "yürütülüyor");
+            }
+            CurrentTask->lastWorkedTime = CurrentTime;
             CurrentTask->remaining--;
-        } 
+        }
 
         /*Zaman artımı ve okunabilirlik için gecikme ekleme*/
-        G_CurrentTime++;
+        CurrentTime++;
         vTaskDelay(pdMS_TO_TICKS(100));
     }
     // çıkış

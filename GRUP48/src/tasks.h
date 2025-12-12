@@ -11,6 +11,7 @@ typedef struct {
     int burstTime;
     int remaining;
     int lastWorkedTime;
+    int startTime;
     const char* color;
     TaskHandle_t handle;
 } Task;
