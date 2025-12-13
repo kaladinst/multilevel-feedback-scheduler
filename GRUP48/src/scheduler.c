@@ -18,7 +18,9 @@ Task TaskList[MAX_TASKS];
 Task* CurrentTask = NULL;
 int TaskCount = 0;
 int CurrentTime = 0;
-int G_ActiveTasks = 0;
+int ActiveTasks = 0;
+
+static void schedulerTasking(void *pvParameters);
 
 /*Kuyrukların oluşturulması*/
 void SchedulerStarter(void) {
@@ -35,7 +37,7 @@ void SchedulerStarter(void) {
 static void schedulerTasking(void *pvParameters) {
     (void) pvParameters;
     
-    while(G_ActiveTasks > 0) {
+    while(ActiveTasks > 0) {
         /* Zaman aşımları kontrolü*/
         for (int i = 0; i < TaskCount; i++) {
             Task* task = &TaskList[i];
@@ -44,10 +46,10 @@ static void schedulerTasking(void *pvParameters) {
 
                 int timePassed = CurrentTime - task->lastWorkedTime;
                 
-                if (timePassed >= 21) { 
+                if (timePassed >= 20) { 
                     print_task_log(task, "zaman aşımı");               
                     task->remaining = 0;
-                    G_ActiveTasks--;
+                    ActiveTasks--;
 
                     if (CurrentTask == task) {
                         CurrentTask = NULL;
@@ -83,7 +85,7 @@ static void schedulerTasking(void *pvParameters) {
         if (CurrentTask != NULL) {          
             if (CurrentTask->remaining <= 0) {
                 print_task_log(CurrentTask, "sonlandi"); 
-                G_ActiveTasks--;
+                ActiveTasks--;
                 CurrentTask = NULL; 
             }
             /* Taskın 1sn çalıştıktan sonra askıya alınması ve bir alt kuyruğa indirgenmesi*/

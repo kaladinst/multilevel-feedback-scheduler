@@ -4,6 +4,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+/*Task yapısını oluşturma*/
 typedef struct {
     char id[16];
     int arrival;
@@ -16,6 +17,7 @@ typedef struct {
     TaskHandle_t handle;
 } Task;
 
+/*Fonksiyon bildirimleri*/
 const char* getRandomColor(void);
 void print_task_log(Task *task, const char *status);
 void SchedulerInitializer(const char *filename);

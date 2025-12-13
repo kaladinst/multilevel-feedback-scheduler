@@ -5,8 +5,7 @@
 #include "task.h"
 #define COLOR_RESET   "\x1b[0m"
 #define MAX_TASKS 25
+/*Fonksiyon bildirimleri*/
 void SchedulerInitializer(const char *filename);
 void SchedulerStarter(void);
-static void schedulerTasking(void *pvParameters);
-
 #endif

@@ -12,22 +12,27 @@
 extern Task TaskList[MAX_TASKS];
 extern int TaskCount;
 extern int CurrentTime;
-extern int G_ActiveTasks;
+extern int ActiveTasks;
 
 /* Renk Seçici */
 const char* getRandomColor() {
-    static const char* palette[] = {
-        "\x1b[38;5;196m", "\x1b[38;5;208m", "\x1b[38;5;226m",
-        "\x1b[38;5;46m", "\x1b[38;5;51m", "\x1b[38;5;21m",
-        "\x1b[38;5;201m", "\x1b[38;5;129m", "\x1b[38;5;200m",
-        "\x1b[38;5;154m", "\x1b[38;5;214m", "\x1b[38;5;39m",
-        "\x1b[38;5;93m", "\x1b[38;5;160m", "\x1b[38;5;220m",
-        "\x1b[38;5;14m", "\x1b[38;5;190m", "\x1b[38;5;27m",
-        "\x1b[38;5;127m", "\x1b[38;5;166m", "\x1b[38;5;82m",
-        "\x1b[38;5;205m", "\x1b[38;5;229m", "\x1b[38;5;244m", "\x1b[38;5;105m"
-    };
-    int r = rand() % 25;
-    return palette[r];
+    static const char* colors[] = {
+        "\033[1;31m",
+        "\033[1;32m",
+        "\033[1;33m", 
+        "\033[1;34m",
+        "\033[1;35m",
+        "\033[1;36m",
+        "\033[38;5;208m",
+        "\033[38;5;198m",
+        "\033[38;5;118m",
+        "\033[38;5;39m",
+        "\033[38;5;93m",
+        "\033[38;5;220m",
+        "\033[38;5;51m",
+        "\033[38;5;160m",
+    };    
+    return colors[rand() % 14];
 }
 
 /* Dosya okuması ve değişkenlerin atanması */
@@ -51,12 +56,12 @@ void SchedulerInitializer(const char *filename) {
         TaskList[i].color     = getRandomColor();
         TaskList[i].handle    = NULL;
         TaskList[i].lastWorkedTime = arrival;
-        TaskList[i].startTime = NULL;
+        TaskList[i].startTime = 0;
         i++;
         TaskCount++;
     }
 
-    G_ActiveTasks = TaskCount;
+    ActiveTasks = TaskCount;
     fclose(file);
 }
 
