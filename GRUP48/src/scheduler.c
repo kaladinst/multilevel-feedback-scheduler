@@ -14,6 +14,7 @@ QueueHandle_t OncelikZero;
 QueueHandle_t OncelikOne;
 QueueHandle_t OncelikTwo;
 QueueHandle_t OncelikThree;
+QueueHandle_t OncelikThree;
 Task TaskList[MAX_TASKS];
 Task* CurrentTask = NULL;
 int TaskCount = 0;
@@ -28,7 +29,6 @@ void SchedulerStarter(void) {
     OncelikOne = xQueueCreate(10, sizeof(Task*));
     OncelikTwo = xQueueCreate(10, sizeof(Task*));
     OncelikThree = xQueueCreate(10, sizeof(Task*));
-
     xTaskCreate(schedulerTasking, "TaskManager", 2048, NULL, 4, NULL);
     vTaskStartScheduler();
 }
@@ -141,6 +141,7 @@ static void schedulerTasking(void *pvParameters) {
              }
         }
 
+        /*Eğer cpudaki task ilk defa çalışmıyorsa yürütülüyor yazılıp son çalışma zamanı yeniden atanır ve süresi 1 azaltılır*/
         if(CurrentTask != NULL) {
             
             if (CurrentTask->startTime != CurrentTime) {
