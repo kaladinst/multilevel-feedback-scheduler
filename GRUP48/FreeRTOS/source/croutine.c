@@ -351,7 +351,8 @@
         pxDelayedCoRoutineList = &xDelayedCoRoutineList1;
         pxOverflowDelayedCoRoutineList = &xDelayedCoRoutineList2;
     }
-/*-----------------------------------------------------------*/
+/*------------------------------------------------------------*/
+
 
     BaseType_t xCoRoutineRemoveFromEventList( const List_t * pxEventList )
     {
