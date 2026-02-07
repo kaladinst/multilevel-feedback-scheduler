@@ -12,32 +12,15 @@ It demonstrates how Operating Systems prioritize processes by dynamically adjust
 * **Dynamic Priority Adjustment:** Processes move between queues based on their execution history (CPU-bound vs. I/O-bound).
 * **Aging Mechanism:** Implemented to prevent starvation by gradually boosting the priority of low-level processes that have waited too long.
 * **Context Switching Simulation:** Simulates the overhead and logic of saving/loading process states.
-* **Performance Metrics:** Calculates and displays average Waiting Time and Turnaround Time for all processes.
-
+* 
 ## 🛠️ Tech Stack
 * **Language:** C
 * **Core Concepts:** Process Control Blocks (PCB), Queues, Linked Lists, CPU Scheduling Algorithms.
 
-## 🚀 How to Run
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/kaladinst/multilevel-feedback-scheduler.git](https://github.com/kaladinst/multilevel-feedback-scheduler.git)
-    cd multilevel-feedback-scheduler
-    ```
-
-2.  **Compile the code:**
-    ```bash
-    gcc main.c -o scheduler
-    ```
-
-3.  **Run the simulation:**
-    ```bash
-    ./scheduler
-    ```
 
 ## 🧠 What I Learned
 * Deepened my understanding of how kernels manage process execution and resource allocation.
-* Gained experience with low-level data structures in C (handling queues and pointers manually).
+* Gained experience with low-level data structures in C (handling queues).
 * learned how to implement "Aging" to solve the Starvation problem in priority-based scheduling.
 
 ---
