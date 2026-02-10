@@ -3,6 +3,9 @@
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Operating Systems](https://img.shields.io/badge/Operating%20Systems-Concept-lightgrey?style=for-the-badge)
 
+
+![WhatsApp Image 2026-02-10 at 13 40 03](https://github.com/user-attachments/assets/eeb8f625-0532-421a-8b77-9268830b1265)
+
 ## 📌 Overview
 This project is a simulation of a **Multi-Level Feedback Queue (MLFQ)** CPU scheduling algorithm, implemented in **C**. 
 
@@ -17,6 +20,10 @@ It demonstrates how Operating Systems prioritize processes by dynamically adjust
 * **Language:** C
 * **Core Concepts:** Process Control Blocks (PCB), Queues, CPU Scheduling Algorithms.
 
+##  How To Run
+  In order to run this project you can use the console command:
+  ./freertos_sim giris.txt
+  You can change the giris.txt file's contents and test the outcomes yourselves.(It is advised that the format of the txt stays the same)
 
 ## 🧠 What I Learned
 * Deepened my understanding of how kernels manage process execution and resource allocation.
@@ -26,3 +33,7 @@ It demonstrates how Operating Systems prioritize processes by dynamically adjust
 
 ---
 *This project was developed as part of the Operating Systems course at Sakarya University.*
+
+    
+
+
