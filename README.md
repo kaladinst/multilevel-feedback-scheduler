@@ -19,13 +19,17 @@ It demonstrates how Operating Systems prioritize processes by dynamically adjust
 * **Language:** C
 * **Core Concepts:** Process Control Blocks (PCB), Queues, CPU Scheduling Algorithms.
 * **Libraries:** FreeRTOS
- 
-## 🧠 What I Learned * Deepened my understanding of how kernels manage process execution and resource allocation. * Gained experience with low-level data structures in C (handling queues). * learned how to implement "Aging" to solve the Starvation problem in priority-based scheduling. * Learned how to effectively use FreeRTOS libraries and implementations.  --- *This project was developed as part of the Operating Systems course at Sakarya University.*
 
 ## 🚀 How To Run
+Deepened my understanding of how kernels manage process execution and resource allocation.
+
+Gained experience with low-level data structures in C (handling queues).
+
+Learned how to implement "Aging" to solve the Starvation problem in priority-based scheduling.
+
+Learned how to effectively use FreeRTOS libraries and implementations.
 
 ### 1. Compilation
-If you need to recompile the source code, use `make` (if a Makefile is provided) or `gcc`:
+First, compile the project using the standard C compiler (GCC) or Make if a makefile is provided:
 ```bash
 gcc -o freertos_sim main.c  # Ensure you link necessary FreeRTOS libraries
-
