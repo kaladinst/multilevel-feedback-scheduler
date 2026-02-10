@@ -35,7 +35,7 @@ First, compile the project using the standard C compiler (GCC) or Make if a make
 ```bash
 gcc -o freertos_sim main.c  # Ensure you link necessary FreeRTOS libraries
 ```
-2. Execution
+###2. Execution
 
 Run the simulation by passing the input file as an argument:
 Bash
@@ -43,5 +43,7 @@ Bash
 ```bash
 ./freertos_sim giris.txt
 ```
+
+You can modify the giris.txt file to test different situations. Be sure to keep the file format integrity.
 
 
