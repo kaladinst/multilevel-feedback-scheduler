@@ -31,5 +31,17 @@ Learned how to effectively use FreeRTOS libraries and implementations.
 
 ### 1. Compilation
 First, compile the project using the standard C compiler (GCC) or Make if a makefile is provided:
+
 ```bash
 gcc -o freertos_sim main.c  # Ensure you link necessary FreeRTOS libraries
+```
+2. Execution
+
+Run the simulation by passing the input file as an argument:
+Bash
+
+```bash
+./freertos_sim giris.txt
+```
+
+
